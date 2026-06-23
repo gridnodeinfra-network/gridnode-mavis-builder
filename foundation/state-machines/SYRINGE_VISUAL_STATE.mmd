@@ -1,0 +1,37 @@
+stateDiagram-v2
+    direction LR
+    [*] --> empty
+
+    empty --> normal: dose, conc set, units<=100
+    empty --> overflow: dose, conc set, units>100
+    normal --> empty: dose=0 OR conc=0
+    normal --> overflow: units>100
+    overflow --> normal: dose changes
+    overflow --> empty: dose=0 OR conc=0
+
+    note right of empty
+      Hero: "—"
+      Status: READY
+      Fluid: 0%
+      Headroom: "HEADROOM —"
+      PK beam: hidden
+      Target: hidden
+    end note
+
+    note right of normal
+      Hero: {units}
+      Status: LOCKED
+      Fluid: 0-100%
+      Headroom: "HEADROOM {100-units}U"
+      PK beam: visible
+      Target: visible
+    end note
+
+    note right of overflow
+      Hero: "OVER"
+      Status: OVERFLOW
+      Fluid: 100% (pinned)
+      Headroom: "OVERAGE +{units-100}U"
+      PK beam: hidden
+      Target: hidden
+    end note

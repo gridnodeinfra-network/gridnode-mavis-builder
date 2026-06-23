@@ -1,0 +1,333 @@
+/* ====================================================================
+   <syringe-visual> Component Styles
+   Reads from --gn-* tokens. No improvised values.
+   Add this once to the candidate, then <syringe-visual variant="..."> just works.
+   ==================================================================== */
+
+syringe-visual {
+  display: block;
+  background: linear-gradient(180deg, rgba(0,229,255,0.04) 0%, transparent 35%), var(--gn-bg-panel);
+  border: var(--gn-border-thick) solid var(--gn-line, rgba(0,229,255,0.4));
+  border-radius: var(--gn-radius-lg);
+  padding: var(--gn-space-5);
+  position: relative;
+  box-shadow: var(--gn-shadow-panel);
+}
+
+/* Corner brackets */
+syringe-visual::before,
+syringe-visual::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--gn-cyan);
+  opacity: 0.5;
+}
+syringe-visual::before { top: 6px; left: 6px; border-right: none; border-bottom: none; }
+syringe-visual::after  { bottom: 6px; right: 6px; border-left: none; border-top: none; }
+
+/* === HERO === */
+syringe-visual .syr-hero {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: end;
+  gap: var(--gn-space-4);
+  margin-bottom: var(--gn-space-3);
+}
+syringe-visual .syr-num {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  line-height: 0.85;
+}
+syringe-visual .syr-num-val {
+  font-size: var(--gn-fs-4xl);
+  font-weight: var(--gn-fw-light);
+  color: var(--gn-cyan);
+  letter-spacing: var(--gn-ls-tight);
+  font-variant-numeric: tabular-nums;
+  text-shadow: var(--gn-glow-cyan);
+}
+syringe-visual .syr-num-unit {
+  font-size: var(--gn-fs-xl);
+  color: var(--gn-text-dim);
+  letter-spacing: var(--gn-ls-wide);
+  margin-left: 6px;
+  font-weight: var(--gn-fw-regular);
+}
+syringe-visual .syr-rule {
+  height: 1px;
+  background: linear-gradient(90deg, var(--gn-cyan) 0%, var(--gn-cyan) 30%, transparent 100%);
+  margin-top: 6px;
+  box-shadow: 0 0 4px rgba(0,229,255,0.6);
+}
+syringe-visual .syr-draw {
+  font-size: var(--gn-fs-xs);
+  color: var(--gn-amber);
+  letter-spacing: var(--gn-ls-label);
+  margin-top: 8px;
+  text-shadow: 0 0 6px rgba(255,215,0,0.4);
+}
+syringe-visual .syr-meta {
+  text-align: right;
+  font-size: var(--gn-fs-sm);
+  letter-spacing: 1.5px;
+  line-height: 1.7;
+}
+syringe-visual .syr-meta .k { color: var(--gn-text-dim); margin-right: 6px; }
+syringe-visual .syr-meta .v { color: var(--gn-green); font-weight: var(--gn-fw-medium); font-variant-numeric: tabular-nums; }
+syringe-visual .syr-meta .v.peptide { color: var(--gn-magenta); }
+
+/* === HARDWARE === */
+syringe-visual .syr-body {
+  display: flex;
+  align-items: center;
+  height: 96px;
+  margin: var(--gn-space-2) 0 var(--gn-space-2);
+}
+syringe-visual .syr-needle {
+  width: 26px;
+  height: 2px;
+  background: linear-gradient(90deg, #e7fbff 0%, #c0c5d0 100%);
+  flex-shrink: 0;
+  position: relative;
+  margin-right: -2px;
+}
+syringe-visual .syr-needle::before {
+  content: '';
+  position: absolute;
+  left: -5px; top: 50%; transform: translateY(-50%);
+  width: 0; height: 0;
+  border-top: 2px solid transparent;
+  border-bottom: 2px solid transparent;
+  border-right: 6px solid #e7fbff;
+}
+syringe-visual .syr-hub {
+  width: 18px;
+  height: 24px;
+  background: linear-gradient(180deg, #f5f5dc 0%, #d4d4b8 50%, #c0c0a0 100%);
+  border-radius: 4px 3px 3px 4px;
+  flex-shrink: 0;
+  position: relative;
+  box-shadow: inset 0 0 3px rgba(0,0,0,0.25), -2px 0 3px rgba(0,229,255,0.15);
+}
+syringe-visual .syr-hub span {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--gn-fs-xs);
+  color: #6a6a4a;
+  font-weight: var(--gn-fw-bold);
+}
+syringe-visual .syr-barrel {
+  flex: 1;
+  height: 30px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 100%);
+  border-top: 1px solid rgba(0,229,255,0.4);
+  border-bottom: 1px solid rgba(0,229,255,0.4);
+  position: relative;
+  overflow: hidden;
+}
+syringe-visual .syr-barrel::after {
+  content: '';
+  position: absolute; top: 0; right: 0; bottom: 0; width: 18px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,130,0,0.12) 40%, rgba(255,130,0,0.4) 100%);
+  border-left: 1px solid rgba(255,130,0,0.5);
+  z-index: 5;
+}
+syringe-visual .syr-u100-label {
+  position: absolute; right: 2px; top: 50%; transform: translateY(-50%);
+  font-size: var(--gn-fs-xs);
+  color: var(--gn-orange-u100);
+  letter-spacing: 1px;
+  font-weight: var(--gn-fw-bold);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  z-index: 6;
+  opacity: 0.85;
+}
+syringe-visual .syr-ticks {
+  position: absolute; top: 0; bottom: 0; left: 0; right: 18px;
+  pointer-events: none;
+  z-index: 3;
+}
+syringe-visual .syr-tick {
+  position: absolute; top: 0; bottom: 0; width: 1px;
+  background: rgba(0,229,255,0.3);
+  transition: background var(--gn-dur-fast), box-shadow var(--gn-dur-fast);
+}
+syringe-visual .syr-tick.major {
+  background: rgba(0,229,255,0.6);
+}
+syringe-visual .syr-tick.cascaded {
+  background: var(--gn-cyan);
+  box-shadow: 0 0 4px var(--gn-cyan);
+}
+syringe-visual .syr-tick-label {
+  position: absolute; top: 100%; transform: translate(-50%, 3px);
+  font-size: var(--gn-fs-xs);
+  color: var(--gn-cyan);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+syringe-visual .syr-fluid {
+  position: absolute; top: 0; bottom: 0; left: 0;
+  background: linear-gradient(90deg,
+    rgba(0,229,255,0.65) 0%,
+    rgba(5,255,161,0.45) 60%,
+    rgba(5,255,161,0.25) 100%);
+  box-shadow: inset 0 0 6px rgba(5,255,161,0.4), 0 0 8px rgba(0,229,255,0.3);
+  transition: width var(--gn-dur-medium) var(--gn-ease-snap);
+  z-index: 1;
+  overflow: hidden;
+}
+syringe-visual .syr-fluid::after {
+  content: '';
+  position: absolute; top: 0; right: 0; bottom: 0; width: 1px;
+  background: rgba(5,255,161,0.8);
+  box-shadow: 0 0 3px rgba(5,255,161,0.6);
+}
+syringe-visual .syr-stopper {
+  position: absolute; top: 2px; bottom: 2px; width: 4px;
+  background: linear-gradient(180deg, #2a2a2a 0%, #000 50%, #2a2a2a 100%);
+  border-left: 1px solid rgba(0,229,255,0.5);
+  border-right: 1px solid rgba(0,229,255,0.5);
+  transition: left var(--gn-dur-medium) var(--gn-ease-snap);
+  z-index: 4;
+}
+syringe-visual .syr-target {
+  position: absolute; top: -4px; bottom: -4px; width: 2px;
+  background: var(--gn-amber);
+  box-shadow: 0 0 6px rgba(255,215,0,0.9);
+  z-index: 5;
+  transition: left var(--gn-dur-medium) var(--gn-ease-snap);
+}
+syringe-visual .syr-target::before,
+syringe-visual .syr-target::after {
+  content: '';
+  position: absolute; left: -3px; width: 8px; height: 8px;
+  background: var(--gn-amber);
+}
+syringe-visual .syr-target::before { top: -4px; clip-path: polygon(50% 100%, 0 0, 100% 0); }
+syringe-visual .syr-target::after  { bottom: -4px; clip-path: polygon(50% 0%, 0 100%, 100% 100%); }
+syringe-visual .syr-flange {
+  width: 10px; height: 56px;
+  background: linear-gradient(180deg, #1e1e2e 0%, #050508 50%, #1e1e2e 100%);
+  border: 1.5px solid rgba(0,229,255,0.4);
+  border-radius: 3px;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(0,229,255,0.2);
+}
+syringe-visual .syr-rod {
+  width: 60px; height: 9px;
+  background: linear-gradient(180deg, #1e1e2e 0%, #050508 50%, #1e1e2e 100%);
+  border-top: 1px solid rgba(0,229,255,0.3);
+  border-bottom: 1px solid rgba(0,229,255,0.3);
+  flex-shrink: 0;
+  position: relative;
+}
+syringe-visual .syr-rod::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(45deg, transparent 46%, rgba(0,229,255,0.18) 50%, transparent 54%),
+    linear-gradient(-45deg, transparent 46%, rgba(0,229,255,0.18) 50%, transparent 54%);
+  background-size: 7px 7px;
+}
+syringe-visual .syr-thumb {
+  width: 42px; height: 42px;
+  background: radial-gradient(circle at 35% 30%, #1e1e2e 0%, #050508 100%);
+  border: 1.5px solid rgba(0,229,255,0.4);
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+  box-shadow: inset 0 0 8px rgba(0,229,255,0.1), 0 0 12px rgba(0,229,255,0.2);
+}
+syringe-visual .syr-thumb::after {
+  content: '';
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 5px; height: 5px;
+  background: var(--gn-magenta);
+  border-radius: 50%;
+  box-shadow: var(--gn-glow-magenta);
+  animation: gnSyrThumbPulse var(--gn-dur-slow) ease-in-out infinite;
+}
+@keyframes gnSyrThumbPulse {
+  0%, 100% { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+  50%      { transform: translate(-50%,-50%) scale(1.4); opacity: 0.6; }
+}
+
+/* === BOTTOM SCALE + RESULTS === */
+syringe-visual .syr-scale {
+  margin-top: var(--gn-space-2);
+  display: flex; justify-content: space-between;
+  padding: 0 30px 0 28px;
+  font-size: var(--gn-fs-xs);
+  color: var(--gn-text-dim);
+  font-variant-numeric: tabular-nums;
+}
+syringe-visual .syr-headroom {
+  color: var(--gn-green);
+  font-weight: var(--gn-fw-medium);
+  text-shadow: var(--gn-glow-green);
+}
+syringe-visual .syr-results {
+  display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 6px;
+  margin-top: var(--gn-space-3);
+}
+syringe-visual .syr-result {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,229,255,0.15);
+  border-radius: var(--gn-radius-sm);
+  padding: var(--gn-space-2) 11px;
+  font-size: var(--gn-fs-xs);
+}
+syringe-visual .syr-result .k { color: var(--gn-text-dim); letter-spacing: 1.5px; margin-bottom: 3px; }
+syringe-visual .syr-result .v { font-size: var(--gn-fs-md); color: var(--gn-cyan); font-weight: var(--gn-fw-medium); font-variant-numeric: tabular-nums; }
+syringe-visual .syr-result .v.green { color: var(--gn-green); }
+syringe-visual .syr-result .v.amber { color: var(--gn-amber); }
+syringe-visual .syr-formula {
+  margin-top: var(--gn-space-2);
+  padding: 7px 11px;
+  background: rgba(0,229,255,0.04);
+  border-left: 2px solid var(--gn-cyan);
+  font-size: var(--gn-fs-sm);
+  color: var(--gn-text-mid);
+  line-height: 1.5;
+}
+syringe-visual .syr-caution {
+  margin-top: 6px;
+  padding: 7px 11px;
+  background: rgba(0,229,255,0.04);
+  border-left: 2px solid rgba(0,229,255,0.4);
+  font-size: var(--gn-fs-xs);
+  color: #8a8a9a;
+  line-height: 1.4;
+}
+syringe-visual .syr-pk {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: var(--gn-space-2);
+  padding: 6px var(--gn-space-2);
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--gn-cyan);
+  border-radius: var(--gn-radius-sm);
+  box-shadow: 0 0 8px rgba(0,229,255,0.3);
+}
+syringe-visual .syr-pk-line {
+  width: 36px; height: 1px;
+  background: repeating-linear-gradient(90deg, var(--gn-cyan) 0, var(--gn-cyan) 3px, transparent 3px, transparent 6px);
+  box-shadow: 0 0 3px rgba(0,229,255,0.6);
+  flex-shrink: 0;
+}
+syringe-visual .syr-pk-hud {
+  flex: 1;
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 2px 10px;
+  font-size: var(--gn-fs-xs);
+  letter-spacing: 1.2px;
+  line-height: 1.4;
+}
+syringe-visual .syr-pk-hud .row { display: flex; gap: 4px; align-items: center; }
+syringe-visual .syr-pk-hud .k { color: var(--gn-text-dim); font-size: var(--gn-fs-xs); }
+syringe-visual .syr-pk-hud .v { color: var(--gn-cyan); font-variant-numeric: tabular-nums; font-weight: var(--gn-fw-medium); }
+syringe-visual .syr-pk-hud .v.peak { color: var(--gn-magenta); }

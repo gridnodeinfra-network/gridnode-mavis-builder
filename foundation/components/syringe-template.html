@@ -1,0 +1,55 @@
+<!-- Syringe visual template — paste this inside <syringe-visual>...</syringe-visual> -->
+<template id="syringe-visual-template">
+  <div class="syr-hero">
+    <div>
+      <div class="syr-num"><span class="syr-num-val">—</span><span class="syr-num-unit">UNITS</span></div>
+      <div class="syr-rule"></div>
+      <div class="syr-draw">DRAW TO THE — UNIT LINE</div>
+    </div>
+    <div class="syr-meta">
+      <div><span class="k">VOL</span>  <span class="v" data-field="volume">— mL</span></div>
+      <div><span class="k">CONC</span> <span class="v" data-field="conc">— mg/mL</span></div>
+      <div><span class="k">PEPT</span> <span class="v peptide" data-field="peptide">Tirzepatide</span></div>
+    </div>
+  </div>
+
+  <div class="syr-body">
+    <div class="syr-needle" data-part="needle"></div>
+    <div class="syr-hub"   data-part="hub"><span>31G</span></div>
+    <div class="syr-barrel" data-part="barrel" role="img" aria-label="U-100 syringe barrel, 0 to 100 units">
+      <div class="syr-ticks"  data-part="ticks"></div>
+      <div class="syr-fluid"  data-part="fluid" style="width:0%"></div>
+      <div class="syr-stopper" data-part="stopper" style="left:0%"></div>
+      <div class="syr-target" data-part="target" style="display:none"></div>
+      <span class="syr-u100-label">U-100</span>
+    </div>
+    <div class="syr-flange" data-part="flange"></div>
+    <div class="syr-rod"    data-part="rod"></div>
+    <div class="syr-thumb"  data-part="thumb"></div>
+  </div>
+
+  <div class="syr-scale">
+    <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+    <span class="syr-headroom" data-field="headroom">HEADROOM —</span>
+  </div>
+
+  <div class="syr-results">
+    <div class="syr-result"><div class="k">// TARGET</div><div class="v" data-field="target">— of 100 U</div></div>
+    <div class="syr-result"><div class="k">// VOLUME</div><div class="v green" data-field="volumeResult">— mL</div></div>
+    <div class="syr-result"><div class="k">// STATUS</div><div class="v amber" data-field="status">READY</div></div>
+  </div>
+
+  <div class="syr-formula" data-field="formula">Educational math only. Enter dose and concentration.</div>
+
+  <div class="syr-caution" data-field="caution" style="display:none"></div>
+
+  <div class="syr-pk" data-field="pk" data-visible="false" style="display:none">
+    <div class="syr-pk-line"></div>
+    <div class="syr-pk-hud">
+      <div class="row"><span class="k">T+0:00</span><span class="v">INJECT</span></div>
+      <div class="row"><span class="k">ONSET</span><span class="v">~15min</span></div>
+      <div class="row"><span class="k">PEAK</span><span class="v peak">2–4d</span></div>
+      <div class="row"><span class="k">HALF</span><span class="v">~5d</span></div>
+    </div>
+  </div>
+</template>

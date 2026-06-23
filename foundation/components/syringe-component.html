@@ -1,0 +1,317 @@
+<!-- ====================================================================
+     <syringe-visual> Component — GRID//NODE
+     Single source of truth for the LAB syringe.
+     Replaces the hand-rolled .syringe-visual blocks in 6+ candidate files.
+     ====================================================================
+
+     USAGE:
+       <syringe-visual variant="bd-neon" dose="7.5" conc="18" peptide="Tirzepatide"></syringe-visual>
+
+     VARIANTS:
+       bd-neon            BD U-100 + cyan+green glow
+       bd-holographic     BD U-100 + rainbow gradient
+       bd-clinical        BD U-100 + black-on-white minimal
+       bd-brutalist       BD U-100 + terminal green ANSI
+       bd-bento           BD U-100 + multi-pane layout
+
+     STATES (auto-computed from dose+conc):
+       empty      dose=0 or conc=0
+       normal     0 < unitsRaw <= 100
+       overflow   unitsRaw > 100
+
+     CONTRACT (input → output, all required unless noted):
+       dose      number, mg, > 0
+       conc      number, mg/mL, > 0
+       peptide   string, display name
+       unit      enum: number|"OVER"
+       drawLabel string, "DRAW TO THE N UNIT LINE" | "EXCEEDS 100-UNIT BARREL" | "DRAW TO THE 0 UNIT LINE"
+       volume    string, "{ml} mL"
+       conc      string, "{mgmL} mg/mL"
+       target    string, "{units} of 100 U" | "OVER 100 U ({units})"
+       status    enum: READY|LOCKED|OVERFLOW|EMPTY
+       fluid     percent, 0-100
+       stopper   percent, 0-100
+       target    percent, 0-100 | null (hidden on overflow/empty)
+       headroom  string, "HEADROOM {n}U" | "OVERAGE +{n}U" | "HEADROOM —"
+       pkBeam    enum: visible|hidden (hidden on empty/overflow)
+       caution   string | null (hidden unless empty/conc>=30/overflow)
+
+     The component self-validates against the contract on every state change.
+     A broken contract throws a console error with the field name.
+
+     ==================================================================== -->
+
+<syringe-visual
+  data-variant="bd-neon"
+  data-state="empty"
+  data-units="0"
+  data-volume-ml="0"
+  data-headroom-u="100"
+  data-pk-visible="false"
+>
+  <!-- Hero monument -->
+  <div class="syr-hero">
+    <div>
+      <div class="syr-num"><span class="syr-num-val">—</span><span class="syr-num-unit">UNITS</span></div>
+      <div class="syr-rule"></div>
+      <div class="syr-draw">DRAW TO THE — UNIT LINE</div>
+    </div>
+    <div class="syr-meta">
+      <div><span class="k">VOL</span>  <span class="v" data-field="volume">— mL</span></div>
+      <div><span class="k">CONC</span> <span class="v" data-field="conc">— mg/mL</span></div>
+      <div><span class="k">PEPT</span> <span class="v peptide" data-field="peptide">Tirzepatide</span></div>
+    </div>
+  </div>
+
+  <!-- The hardware -->
+  <div class="syr-body">
+    <div class="syr-needle" data-part="needle"></div>
+    <div class="syr-hub"   data-part="hub"><span>31G</span></div>
+    <div class="syr-barrel" data-part="barrel" role="img" aria-label="U-100 syringe barrel, 0 to 100 units">
+      <div class="syr-ticks"  data-part="ticks"></div>
+      <div class="syr-fluid"  data-part="fluid" style="width:0%"></div>
+      <div class="syr-stopper" data-part="stopper" style="left:0%"></div>
+      <div class="syr-target" data-part="target" style="display:none"></div>
+      <span class="syr-u100-label">U-100</span>
+    </div>
+    <div class="syr-flange" data-part="flange"></div>
+    <div class="syr-rod"    data-part="rod"></div>
+    <div class="syr-thumb"  data-part="thumb"></div>
+  </div>
+
+  <!-- Bottom scale -->
+  <div class="syr-scale">
+    <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+    <span class="syr-headroom" data-field="headroom">HEADROOM —</span>
+  </div>
+
+  <!-- Result cards -->
+  <div class="syr-results">
+    <div class="syr-result"><div class="k">// TARGET</div><div class="v" data-field="target">— of 100 U</div></div>
+    <div class="syr-result"><div class="k">// VOLUME</div><div class="v green" data-field="volumeResult">— mL</div></div>
+    <div class="syr-result"><div class="k">// STATUS</div><div class="v amber" data-field="status">READY</div></div>
+  </div>
+
+  <!-- Formula -->
+  <div class="syr-formula" data-field="formula">Educational math only. Enter dose and concentration.</div>
+
+  <!-- Caution (hidden by default) -->
+  <div class="syr-caution" data-field="caution" style="display:none"></div>
+
+  <!-- PK projection (hidden by default) -->
+  <div class="syr-pk" data-field="pk" data-visible="false" style="display:none">
+    <div class="syr-pk-line"></div>
+    <div class="syr-pk-hud">
+      <div class="row"><span class="k">T+0:00</span><span class="v">INJECT</span></div>
+      <div class="row"><span class="k">ONSET</span><span class="v">~15min</span></div>
+      <div class="row"><span class="k">PEAK</span><span class="v peak">2–4d</span></div>
+      <div class="row"><span class="k">HALF</span><span class="v">~5d</span></div>
+    </div>
+  </div>
+</syringe-visual>
+
+<!-- Component contract enforcement -->
+<script>
+(function() {
+  const CONTRACT = {
+    unit:      { type: 'string|number', required: true,  enum: [0,1,2,...,100,'OVER'] },
+    drawLabel: { type: 'string', required: true },
+    volume:    { type: 'string', required: true, pattern: /^[\d.]+ mL$/ },
+    target:    { type: 'string', required: true, pattern: /^\d+ of 100 U$|^OVER 100 U \(\d+\)$|^— of 100 U$/ },
+    status:    { type: 'string', required: true, enum: ['READY','LOCKED','OVERFLOW','EMPTY'] },
+    fluid:     { type: 'number', required: true, range: [0, 100] },
+    stopper:   { type: 'number', required: true, range: [0, 100] },
+    headroom:  { type: 'string', required: true },
+    state:     { type: 'string', required: true, enum: ['empty','normal','overflow'] },
+  };
+
+  // Public API: window.SyringeVisual.update(el, props)
+  // Sets all fields at once and validates the contract.
+  function update(el, props) {
+    if (!el || !el.matches('syringe-visual')) {
+      throw new Error('SyringeVisual.update: element must be <syringe-visual>');
+    }
+    // Validate
+    for (const [key, def] of Object.entries(CONTRACT)) {
+      if (def.required && props[key] === undefined) {
+        console.error(`SyringeVisual contract broken: ${key} is required but missing`, { props });
+        return;
+      }
+      if (def.enum && !def.enum.includes(props[key])) {
+        console.error(`SyringeVisual contract broken: ${key}=${props[key]} not in enum ${def.enum}`);
+        return;
+      }
+      if (def.range && (props[key] < def.range[0] || props[key] > def.range[1])) {
+        console.error(`SyringeVisual contract broken: ${key}=${props[key]} out of range ${def.range}`);
+        return;
+      }
+    }
+
+    // Apply to DOM
+    el.dataset.state    = props.state;
+    el.dataset.units    = String(props.unit);
+    el.dataset.pkVisible = props.pkVisible ? 'true' : 'false';
+
+    const numEl   = el.querySelector('.syr-num-val');
+    const drawEl  = el.querySelector('.syr-draw');
+    const volEl   = el.querySelector('[data-field="volume"]');
+    const targetEl= el.querySelector('[data-field="target"]');
+    const statusEl= el.querySelector('[data-field="status"]');
+    const headEl  = el.querySelector('[data-field="headroom"]');
+    const fluid   = el.querySelector('.syr-fluid');
+    const stopper = el.querySelector('.syr-stopper');
+    const target  = el.querySelector('.syr-target');
+    const pk      = el.querySelector('.syr-pk');
+    const caution = el.querySelector('.syr-caution');
+    const formula = el.querySelector('.syr-formula');
+
+    if (numEl)    numEl.textContent    = props.unit;
+    if (drawEl)   drawEl.textContent   = props.drawLabel;
+    if (volEl)    volEl.textContent    = props.volume;
+    if (targetEl) targetEl.textContent = props.target;
+    if (statusEl) statusEl.textContent = props.status;
+    if (headEl)   headEl.textContent   = props.headroom;
+    if (fluid)    fluid.style.width    = props.fluid + '%';
+    if (stopper)  stopper.style.left   = props.stopper + '%';
+    if (target) {
+      if (props.state === 'normal' && props.fluid > 0) {
+        target.style.display = 'block';
+        target.style.left = props.fluid + '%';
+      } else {
+        target.style.display = 'none';
+      }
+    }
+    if (pk)     pk.style.display      = props.pkVisible ? 'flex' : 'none';
+    if (caution) {
+      if (props.caution) {
+        caution.style.display = 'block';
+        caution.textContent = props.caution;
+      } else {
+        caution.style.display = 'none';
+      }
+    }
+    if (formula) formula.textContent  = props.formula || '';
+
+    // Tick cascade
+    cascadeTicks(el, props.fluid, props.state);
+  }
+
+  function cascadeTicks(el, fluidPct, state) {
+    if (state !== 'normal') return;
+    const ticks = el.querySelectorAll('.syr-tick.major');
+    ticks.forEach((tick, i) => {
+      const u = parseInt(tick.dataset.unit || '0', 10);
+      if (u > 0 && u <= fluidPct) {
+        setTimeout(() => tick.classList.add('cascaded'), i * 40);
+      } else {
+        tick.classList.remove('cascaded');
+      }
+    });
+  }
+
+  // Generate U-100 markings (run once on load)
+  function initMarkings(el) {
+    const ticks = el.querySelector('.syr-ticks');
+    if (!ticks || ticks.dataset.initialized) return;
+    for (let u = 0; u <= 100; u += 2) {
+      const tick = document.createElement('div');
+      tick.className = 'syr-tick' + (u % 10 === 0 ? ' major' : '');
+      tick.style.left = u + '%';
+      tick.dataset.unit = u;
+      ticks.appendChild(tick);
+      if (u % 10 === 0 && u > 0 && u < 100) {
+        const label = document.createElement('div');
+        label.className = 'syr-tick-label';
+        label.style.left = u + '%';
+        label.textContent = u;
+        ticks.appendChild(label);
+      }
+    }
+    const lastLabel = document.createElement('div');
+    lastLabel.className = 'syr-tick-label';
+    lastLabel.style.left = '100%';
+    lastLabel.textContent = '100';
+    ticks.appendChild(lastLabel);
+    ticks.dataset.initialized = '1';
+  }
+
+  // Public compute function: input -> state props
+  function compute(dose, conc, peptide) {
+    if (!dose || !conc) {
+      return {
+        state: 'empty',
+        unit: '—',
+        drawLabel: 'DRAW TO THE — UNIT LINE',
+        volume: '— mL',
+        conc: '— mg/mL',
+        target: '— of 100 U',
+        volumeResult: '— mL',
+        status: 'READY',
+        fluid: 0,
+        stopper: 0,
+        headroom: 'HEADROOM —',
+        pkVisible: false,
+        caution: null,
+        formula: 'Educational math only. Enter dose and concentration.',
+      };
+    }
+
+    const ml = dose / conc;
+    const unitsRaw = ml * 100;
+    const units = Math.round(unitsRaw);
+    const mlTxt = ml.toFixed(2);
+    const concTxt = conc.toFixed(3);
+    const doseTxt = parseFloat(dose).toFixed(3);
+    const headroom = 100 - unitsRaw;
+    const overage = unitsRaw - 100;
+
+    let state, fluid, stopper, drawLabel, target, status, headroomStr, pkVisible, caution, formula;
+
+    if (unitsRaw > 100) {
+      state = 'overflow';
+      fluid = 100; stopper = 100;
+      drawLabel = 'EXCEEDS 100-UNIT BARREL';
+      target = `OVER 100 U (${units})`;
+      status = 'OVERFLOW';
+      headroomStr = `OVERAGE +${Math.round(overage)}U`;
+      pkVisible = false;
+      caution = `Result exceeds 100-unit U-100 barrel by ${Math.round(overage)}U. Educational math only — confirm handling decisions with a licensed clinician.`;
+      formula = `${doseTxt} mg ÷ ${concTxt} mg/mL = ${mlTxt} mL = ${units} units`;
+    } else {
+      state = 'normal';
+      fluid = unitsRaw; stopper = unitsRaw;
+      drawLabel = `DRAW TO THE ${units} UNIT LINE`;
+      target = `${units} of 100 U`;
+      status = 'LOCKED';
+      headroomStr = `HEADROOM ${Math.round(headroom)}U`;
+      pkVisible = true;
+      caution = conc >= 30
+        ? 'High concentration value entered. Double-check your vial label, concentration units, and decimal placement before using this calculation.'
+        : null;
+      formula = `${doseTxt} mg ÷ ${concTxt} mg/mL = ${mlTxt} mL = ${units} units`;
+    }
+
+    return {
+      state, unit: state === 'overflow' ? 'OVER' : units,
+      drawLabel, volume: `${ml.toFixed(3)} mL`, conc: `${concTxt} mg/mL`,
+      target, volumeResult: `${mlTxt} mL`, status,
+      fluid, stopper, headroom: headroomStr, pkVisible, caution, formula,
+    };
+  }
+
+  // Expose
+  window.SyringeVisual = { update, compute, initMarkings };
+
+  // Auto-init any existing <syringe-visual> elements
+  function init() {
+    document.querySelectorAll('syringe-visual').forEach(el => {
+      initMarkings(el);
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
